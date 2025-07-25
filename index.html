@@ -2,15 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Open Telegram from InitData</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Telegram WebApp User Info</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background-color: #1e1e1e;
+      color: #eee;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      padding: 30px;
+    }
+    h1 {
+      color: #44aaff;
+    }
+    .box {
+      background: #2b2b2b;
+      border: 1px solid #555;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px;
+      width: 100%;
+      max-width: 600px;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #9f9;
+    }
+    a {
+      color: #44aaff;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Open Telegram from Hash</h1>
-    <button onclick="promptForHash()">Paste initData Hash</button>
-    <p id="status"></p>
+
+  <h1>Telegram WebApp</h1>
+
+  <div class="box">
+    <h3>Raw initData:</h3>
+    <pre id="initData"></pre>
   </div>
-  <script src="script.js"></script>
+
+  <div class="box">
+    <h3>Parsed User Info:</h3>
+    <pre id="userData"></pre>
+  </div>
+
+  <div class="box">
+    <h3>Open User in Telegram</h3>
+    <div id="openLink"></div>
+  </div>
+
+  <script>
+    const initData = Telegram.WebApp.initData;
+    const initDataUnsafe = Telegram.WebApp.initDataUnsafe;
+
+    document.getElementById("initData").textContent = initData || "No initData received";
+
+    const user = initDataUnsafe?.user;
+
+    if (user) {
+      document.getElementById("userData").textContent = `
+ID: ${user.id}
+Name: ${user.first_name} ${user.last_name || ""}
+Username: @${user.username || "(none)"}
+Language: ${user.language_code}
+Allows PM: ${user.allows_write_to_pm}
+Photo: ${user.photo_url || "(no photo)"}
+`.trim();
+
+      if (user.username) {
+        document.getElementById("openLink").innerHTML = `
+          <a href="https://t.me/${user.username}" target="_blank">
+            🔗 Open Telegram Profile
+          </a>`;
+      } else {
+        document.getElementById("openLink").textContent = "Username not set, can't open Telegram profile.";
+      }
+    } else {
+      document.getElementById("userData").textContent = "User data not available.";
+      document.getElementById("openLink").textContent = "Cannot generate Telegram link.";
+    }
+  </script>
+
 </body>
 </html>
